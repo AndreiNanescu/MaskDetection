@@ -49,9 +49,7 @@ def load_data():
     train_face = process_folder(folder=pathlib.Path.cwd().joinpath('Data/Face'))
     train_mask = process_folder(folder=pathlib.Path.cwd().joinpath('Data/Mask'))
     train_set = pd.concat([train_face, train_mask], axis=0)
-
-    with open('train_set.pkl', 'wb') as f:
-        pickle.dump(train_set, f)
+    np.save('trainset.npy', train_set)
 
     x_train = train_set.drop('class', axis=1)
     y_train = train_set['class']
