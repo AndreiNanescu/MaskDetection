@@ -18,10 +18,13 @@ model.fit(x_train, y_train, epochs=10)  # gradient descent
 vid = cv2.VideoCapture(0)
 while True:
     ret, frame = vid.read()
+    frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if ret:
-        frame = cv2.resize(frame, (96, 96))
-        frame = frame / 255.0
-        prediction = model.predict(frame[None, ...])[0]
+        frame_gray = cv2.resize(frame_gray, (96, 96))
+        frame_gray = np.ravel(frame_gray) / 255.0
+        frame_gray = np.reshape(frame_gray, (1, 9216))
+        prediction = model.predict(frame_gray)
+        print(frame_gray.shape)
         prediction_class = np.argmax(prediction, axis=1)
         print("Prediction:", prediction_class)
         cv2.imshow('frame', frame)
