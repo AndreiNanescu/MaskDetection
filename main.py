@@ -3,19 +3,30 @@ import numpy as np
 import cv2
 from loadData import load_data
 
-x_train, y_train = load_data()
-model = tf.keras.Sequential([tf.keras.layers.Input(shape=(9216,)),
+x_train, y_train, x_valid, y_valid = load_data()
+
+model = tf.keras.Sequential([tf.keras.layers.Input(shape=(27648,)),
                              tf.keras.layers.Dense(units=2048, activation='relu'),
                              tf.keras.layers.Dense(units=1024, activation='relu'),
-                             tf.keras.layers.Dense(units=1024, activation='relu'),
-                             tf.keras.layers.Dense(units=128, activation='relu'),
-                             tf.keras.layers.Dense(units=2, activation='sigmoid')])
+                             tf.keras.layers.Dense(units=512, activation='relu'),
+                             tf.keras.layers.Dense(units=256, activation='relu'),
+                             tf.keras.layers.Dense(units=2, activation='sigmoid', name='face_output'),
+                             tf.keras.layers.Dense(units=2, activation='sigmoid', name='mask_output')])
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-              loss=tf.keras.losses.BinaryCrossentropy(from_logits=True))  # loss and cost
+              loss={'face_output': tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                    'mask_output': tf.keras.losses.BinaryCrossentropy(from_logits=True)},
+              metrics={'face_output': 'accuracy', 'mask_output': 'accuracy'})
 
-model.fit(x_train, y_train, epochs=10)  # gradient descent
+
+model.fit(x_train, {'face_output': y_train[:, 0], 'mask_output': y_train[:, 1]},
+          validation_data=(x_valid, {'face_output': y_valid[:, 0], 'mask_output': y_valid[:, 1]}),
+          epochs=10)
+
+loss, accuracy = model.evaluate(x_valid, {'face_output': y_valid[:, 0], 'mask_output': y_valid[:, 1]})
+"""
 vid = cv2.VideoCapture(0)
+
 while True:
     ret, frame = vid.read()
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -32,3 +43,4 @@ while True:
         break
 vid.release()
 cv2.destroyAllWindows()
+"""
