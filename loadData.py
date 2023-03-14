@@ -5,7 +5,25 @@ import sklearn.utils
 import tensorflow as tf
 import cv2
 
+train_dir = 'Data/train'
+valid_dir = 'Data/valid'
 
+train_dataset = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1 / 255).flow_from_directory(
+    train_dir,
+    target_size=(224, 224),
+    batch_size=32,
+    class_mode='binary'
+)
+valid_dataset = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1 / 255).flow_from_directory(
+    train_dir,
+    target_size=(
+        224, 224),
+    batch_size=32,
+    class_mode='binary'
+)
+train_dataset.class_indices
+valid_dataset.class_indices
+"""""
 def process_image(img_path: str) -> np.array:
     img = cv2.imread(img_path)
     img = cv2.resize(img, (96, 96))
@@ -31,6 +49,7 @@ def process_folder(folder: pathlib.PosixPath) -> pd.DataFrame:
     return processed
 
 
+
 def load_data():
     train_face = process_folder(folder=pathlib.Path.cwd().joinpath('Data/Face'))
     train_mask = process_folder(folder=pathlib.Path.cwd().joinpath('Data/Mask'))
@@ -53,3 +72,4 @@ def load_data():
     y_valid = tf.keras.utils.to_categorical(y_valid_factorized, num_classes=2)
 
     return x_train, y_train, x_valid, y_valid
+"""""
