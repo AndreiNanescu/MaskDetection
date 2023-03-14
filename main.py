@@ -1,29 +1,28 @@
 import tensorflow as tf
-import numpy as np
-import cv2
 from loadData import load_data
 
-x_train, y_train, x_valid, y_valid = load_data()
+train_set, valid_set = load_data()
 
-model = tf.keras.Sequential([tf.keras.layers.Input(shape=(27648,)),
-                             tf.keras.layers.Dense(units=2048, activation='relu'),
-                             tf.keras.layers.Dense(units=1024, activation='relu'),
-                             tf.keras.layers.Dense(units=512, activation='relu'),
-                             tf.keras.layers.Dense(units=256, activation='relu'),
-                             tf.keras.layers.Dense(units=2, activation='sigmoid', name='face_output'),
-                             tf.keras.layers.Dense(units=2, activation='sigmoid', name='mask_output')])
+model = tf.keras.Sequential([tf.keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+                             tf.keras.layers.MaxPool2D(2, 2),
+
+                             tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+                             tf.keras.layers.MaxPool2D(2, 2),
+
+                             tf.keras.layers.Conv2D(64, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+                             tf.keras.layers.MaxPool2D(2, 2),
+
+                             tf.keras.layers.Flatten(),
+                             tf.keras.layers.Dense(512, activation='relu'),
+                             tf.keras.layers.Dense(1, activation='sigmoid')
+                             ])
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-              loss={'face_output': tf.keras.losses.BinaryCrossentropy(from_logits=True),
-                    'mask_output': tf.keras.losses.BinaryCrossentropy(from_logits=True)},
-              metrics={'face_output': 'accuracy', 'mask_output': 'accuracy'})
+              loss=tf.keras.losses.BinaryCrossentropy(),
+              metrics=['accuracy'])
 
+model = model.fit(train_set, validation_data=valid_set, epochs=10)
 
-model.fit(x_train, {'face_output': y_train[:, 0], 'mask_output': y_train[:, 1]},
-          validation_data=(x_valid, {'face_output': y_valid[:, 0], 'mask_output': y_valid[:, 1]}),
-          epochs=10)
-
-loss, accuracy = model.evaluate(x_valid, {'face_output': y_valid[:, 0], 'mask_output': y_valid[:, 1]})
 """
 vid = cv2.VideoCapture(0)
 
