@@ -6,10 +6,10 @@ train_set, valid_set = load_data()
 model = tf.keras.Sequential([tf.keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(224, 224, 3)),
                              tf.keras.layers.MaxPool2D(2, 2),
 
-                             tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+                             tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
                              tf.keras.layers.MaxPool2D(2, 2),
 
-                             tf.keras.layers.Conv2D(64, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+                             tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
                              tf.keras.layers.MaxPool2D(2, 2),
 
                              tf.keras.layers.Flatten(),
@@ -21,7 +21,9 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
               loss=tf.keras.losses.BinaryCrossentropy(),
               metrics=['accuracy'])
 
-model = model.fit(train_set, validation_data=valid_set, epochs=10)
+file_name = 'my_saved_model'
+tensorboard = tf.keras.callbacks.TensorBoard(log_dir="logs\\{}".format(file_name))
+model = model.fit(train_set, validation_data=valid_set, epochs=10, callbacks=[tensorboard])
 
 """
 vid = cv2.VideoCapture(0)
