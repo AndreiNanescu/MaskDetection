@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 data_dir = 'Data'
+test_data_dir = 'testData'
 
 
 def load_data():
@@ -18,4 +19,8 @@ def load_data():
                                                 class_mode='binary',
                                                 subset='validation')
 
-    return train_dataset, valid_dataset
+    test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1 / 255)
+    test_dataset = test_datagen.flow_from_directory(test_data_dir, target_size=(224, 224), class_mode='binary',
+                                                    subset='training')
+
+    return train_dataset, valid_dataset, test_dataset
